@@ -1,0 +1,33 @@
+---
+# defaults file for atlassian-bitbucket-server-role
+
+## PATHS
+install_dir: /opt/atlassian/bitbucket
+home_dir: /var/atlassian/application-data/bitbucket
+
+## BASE NAME
+bitbucket_url_basename: "bitbucket.YOURDOMAIN.COM"
+
+## OS USER PERMISSIONS
+bitbucket_user: bitbucket
+bitbucket_group: bitbucket
+
+## ARCHIVE AND DOWNLOADS
+# MUST BE SET IN YOUR VARIABLES AND MATCH THE INSTALLER PATH - bitbucket_version: "4.1.0"
+bitbucket_installer_archive: "atlassian-bitbucket-{{ bitbucket_version }}.tar.gz"
+bitbucket_download_base: "https://www.atlassian.com/software/stash/downloads/binary/"
+
+## JVM MEMORY SETTINGS
+bitbucket_min_memory: "512M" # Don't go lower than 512M
+bitbucket_max_memory: "768M" # Don't go lower than 768M
+
+## GRAVATAR SERVER
+gravatar_enabled: false
+gravatar_url: ""
+
+## SSO SUPPORT - For things like Crowd to work
+crowd_sso_enabled: false
+
+## DATABASE CONFIIGURATION
+bitbucket_database_user: "SET A DATABASE USER HERE"
+bitbucket_database_pass: "SET A DATABASE PASSWORD HERE"

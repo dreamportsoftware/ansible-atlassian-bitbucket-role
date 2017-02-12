@@ -1,0 +1,16 @@
+---
+  - name: Add multiverse repository
+    apt_repository: repo="{{ item }}"
+    with_items:
+      - "deb http://archive.ubuntu.com/ubuntu {{ ansible_distribution_release }} multiverse"
+
+  - name: install standard pre-requisites
+    apt:
+      pkg={{ item }}
+      state=latest
+      update-cache=yes
+      force=yes
+    with_items:
+      - git
+      - openjdk-8-jre-headless
+      - unzip

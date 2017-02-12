@@ -1,0 +1,79 @@
+---
+# tasks file for atlassian-bitbucket-server-role
+
+# Install dependencies
+- name: install dependencies
+  include: dependencies.yml
+
+# Create User and Group
+- name: create bitbucket group
+  group: name={{ bitbucket_group }}
+
+- name: create directory for home
+  file: path={{ home_dir }} state=directory
+
+- name: create bitbucket user
+  user:
+    comment="Bitbucket Server User"
+    generate_ssh_key=yes
+    group={{ bitbucket_group }}
+    home={{ home_dir }}
+    name={{ bitbucket_user }}
+    shell=/bin/bash
+    system=yes
+
+# Create Directories
+- name: create base directory
+  file:
+    group={{ bitbucket_group }}
+    owner={{ bitbucket_user }}
+    path={{ install_dir }}
+    state=directory
+
+# Download Application
+- name: download archive installer
+  get_url:
+      url={{ bitbucket_download_base }}{{ bitbucket_installer_archive }}
+      dest=/tmp/{{ bitbucket_installer_archive }}
+
+# Extract
+- name: unpack bitbucket archive
+  unarchive:
+      copy=no
+      owner={{ bitbucket_user }}
+      group={{ bitbucket_group }}
+      mode=0750
+      src=/tmp/{{ bitbucket_installer_archive }}
+      dest={{ install_dir }}
+      creates={{ install_dir }}/atlassian-bitbucket-{{ bitbucket_version }}
+
+# Configure
+# check for config directory existing and set config
+- name: create bitbucket config directory
+  file: path={{ home_dir }}/shared/ state=directory owner=bitbucket group=bitbucket
+
+- name: update bitbucket configuration
+  template:
+      src=bitbucket_config.properties.j2
+      dest={{ home_dir }}/shared/bitbucket.properties
+      owner=bitbucket
+      group=bitbucket
+
+# Change JVM settings
+- name: change JVM settings
+  lineinfile:
+    dest={{ install_dir }}/atlassian-bitbucket-{{ bitbucket_version }}/bin/setenv.sh
+    regexp="{{ item.find }}"
+    line="{{ item.replace }}"
+  with_items:
+      - { find: '^JVM_MINIMUM_MEMORY=', replace: 'JVM_MINIMUM_MEMORY=\"{{ bitbucket_min_memory }}\"' }
+      - { find: '^JVM_MAXIMUM_MEMORY=', replace: 'JVM_MAXIMUM_MEMORY=\"{{ bitbucket_max_memory }}\"' }
+
+- name: change umask settings
+  lineinfile:
+    dest={{ install_dir }}/atlassian-bitbucket-{{ bitbucket_version }}/bin/setenv.sh
+    regexp="umask u=rwx,g=r,o="
+    line="umask u=rwx,g=r,o="
+    insertafter="# umask 0027"
+
+# Run

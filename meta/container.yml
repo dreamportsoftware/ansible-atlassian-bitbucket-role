@@ -1,0 +1,9 @@
+bitbucket-server:
+  image: "ubuntu:xenial"
+  environment:
+    - BITBUCKET_MEMORY=1G
+  user: bitbucket
+  command: []
+  expose:
+    - 7999
+  
